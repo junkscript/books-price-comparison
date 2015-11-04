@@ -1,0 +1,6 @@
+*.pyc
+*.swp
+*.sqlite3
+*.DS_Store
+static_media/
+media/
