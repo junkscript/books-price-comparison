@@ -1,57 +1,44 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-
-from multiprocessing import pool as mpool
-from collections import OrderedDict
 import json
 import time
-from .utils import paytm, uread, flipkart, amazon, infibeam
+from utils import get_query
+from django.db.models import Q
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from .models import ProductPhoto,Tag, Website, Product,Reviews
 
-def worker((target, isbn)):
-    return target(isbn)
+def home_page(request):
+    return render(request,'home.html')
 
-def api(request):
-    start_time = time.time()
-    pool = mpool.ThreadPool()
-    isbn= request.GET['isbn']
-    args = [(target, isbn) for target in (amazon,infibeam, )]
-    result = pool.map(worker, args)
-    data = OrderedDict()
-    return HttpResponse(result)
-    if(result[0]['status']=="success"):
-		data["Status"]="Success"
-		data["Book Name"]=result[0]['name']
-		data["Author"]=result[0]['author']
-		data["Description"]=result[0]['desc']
-		data["Image"]=result[0]['image_url']
-		data["Flipkart Price"]=result[0]['price']
-		data["Flipkart URL"]=result[0]['url']
+def paginate(posts, page_num=1):
+    paginator = Paginator(posts, 10)
+    try:
+        page = int(page_num)
+    except ValueError:
+        page = 1
+    try:
+        posts = paginator.page(page)
+    except (InvalidPage, EmptyPage):
+        posts = paginator.page(paginator.num_pages)
+    return posts
 
-		data["Amazon Price"]=result[1]['price']
-		if(result[1]['price']!="NA"):
-			data["Amazon URL"]=result[1]['url']
+def web_search(request):
+    data = request.GET
+    keyword = data["keyword"]
+    try:
+        page_num=data['page_num']
+    except:
+        page_num=1
+    tagval = keyword.strip()
+    tagval = str(tagval).split(" ")
+    entry_query = get_query(keyword.strip(), ['name','description','isbn_number','available__name'])
+    posts = Product.objects.filter(entry_query|Q(tags__name__in=tagval)).distinct().order_by('id').reverse()
+    posts = paginate(posts, page_num)
+    return render(request, 'blog/blog/index.html',{'data':posts})
 
-		data["URead Price"]=result[2]['price']
-		if(result[2]['price']!="NA"):
-			data["URead URL"]=result[2]['url']
-
-		data["Crossword Price"]=result[3]['price']
-		if(result[3]['price']!="NA"):
-			data["Crossword URL"]=result[3]['url']
-
-		data["Landmark on the net Price"]=result[4]['price']
-		if(result[4]['price']!="NA"):
-			data["Landmark on the net URL"]=result[4]['url']
-
-		data["Infibeam Price"]=result[5]['price']
-		if(result[5]['price']!="NA"):
-			data["Infibeam URL"]=result[5]['url']
-
-    elif(result[0]['status']=="error_connecting"):
-		data["Status"]="Error in connecting"
-
-    elif(result[0]['status']=="invalid_isbn"):
-		data["Status"]="Invalid ISBN"
-
-    print "Time taken for the call: "+str(time.time()-start_time)
-    return HttpResponse(json.dumps(data))
+def product_detail(request):
+    data=request.GET
+    product_info=Product.objects.filter(isbn_number=data)
+    product_info.visit_count=product_info.visit_count+1
+    product_info.save()
+    return render(request,'detail.html',{'product_info':product_info})
