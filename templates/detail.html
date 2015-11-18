@@ -11,7 +11,7 @@
                 <img src="{{product_info.featured_image.url}}" style="padding-top:3%;"/>
                 {% for avl in product_info.available.all %}
                     <p>{{avl.name}}: {{avl.price}}</p>
-                    <p>Product url: {{avl.url}}</p>
+                    <p>Product url: {{avl.product_url}}</p>
                 {% endfor %}
                 <h5>{{product_info.description}}</h5>
             </div>

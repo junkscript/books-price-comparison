@@ -30,13 +30,14 @@ import os
 import urllib
 class Product(models.Model):
     name=models.CharField(max_length=255)
+    author=models.CharField(max_length=255 ,  null=True, blank=True)
     product_category=models.ForeignKey(ProductCategory,  null=True, blank=True)
     product_subcategory=models.ForeignKey(ProductSubcategory,  null=True, blank=True)
-    available= models.ManyToManyField(Website, related_name="products")
-    description=models.TextField()
+    available= models.ManyToManyField(Website, related_name="products", null=True, blank=True)
+    description=models.TextField( null=True, blank=True)
     featured_image = models.ImageField(upload_to='compare/', null=True, blank=True)
     image_url = models.URLField(null=True, blank=True)
-    isbn_number=models.CharField(max_length=255)
+    isbn_number=models.CharField(max_length=255,unique=True)
     tags = models.ManyToManyField(Tag, null=True, blank=True)
     created=models.DateTimeField(auto_now_add=True)
     visit_count=models.IntegerField(default=0)
