@@ -10,6 +10,7 @@ import mechanize
 import json
 from webapp.celery import app
 from compare.models import Product, Reviews, Website
+import string
 
 #file = open('isbn_list.txt', 'r')
 #isbns = file.readlines()
@@ -35,7 +36,7 @@ def flipkart(isbn):
     reviews=f_soup.find_all("span",class_="review-text-full")
     review_list=[]
     for r in reviews:
-        review_list.append(r.text)
+        review_list.append(filter(lambda x: x in string.printable,r.text))
     f_title =f_soup.find(itemprop="name").text
     f_price =int(f_soup.find_all("span",class_="selling-price omniture-field")[0].text.replace("Rs.",""))
     f_author= f_soup.find_all(href=re.compile("/author/[\w\s,.$><?@#$%^&*()_:-]+"))[0].text
@@ -93,4 +94,4 @@ def main():
             product.save()
             for i in f_data['reviews']:
                 Reviews.objects.create(inside_text=i,product=product)
-        return True
+    return True
