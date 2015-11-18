@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block contents %}
+    <div class="flex-vertical container-fluid">
+        <div class="row">
+            <div class=" leftnav col-sm-12 col-md-3 col-xs-12 col-lg-3">
+                <h4>Detail Information</h4>
+            </div>
+            <div align="center" class=" result-body col-sm-12 col-md-9 col-xs-12 col-lg-9">
+                <h3>{{product_info.name}}</h3>
+                <img src="{{product_info.featured_image.url}}" style="padding-top:3%;"/>
+                {% for avl in product_info.available.all %}
+                    <p>{{avl.name}}: {{avl.price}}</p>
+                    <p>Product url: {{avl.url}}</p>
+                {% endfor %}
+                <h5>{{product_info.description}}</h5>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

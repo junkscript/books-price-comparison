@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+	{% load staticfiles %}
+    {% block contents %}
+    <div class="flex-vertical container-fluid">
+        <div class="row">
+            <div class=" leftnav col-sm-12 col-md-3 col-xs-12 col-lg-3">
+                <h4>Search Results</h4>
+            </div>
+            <div class=" result-body col-sm-12 col-md-9 col-xs-12 col-lg-9">
+                <div class="row">
+                    <div class="row">
+                        {% for d in data %}
+                            <div align="center" class="col-sm-6 col-sm-12 col-md-4 col-lg-4">
+                                <a href="{% url 'product_detail' %}?isbn={{d.isbn_number}}"><img src="{{d.featured_image.url}}" style="padding-top:3%;"/></a>
+                                {% for avl in data.available.all %}
+                                    <p>{{avl.name}}: {{avl.price}}</p>
+                                {% endfor %}
+                            </div>
+                            {% if forloop.counter|divisibleby:3 %}
+                                </div>
+                                <div class="row">
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            </div>
+    </div>
+  {% endblock %}
