@@ -82,7 +82,7 @@ DATABASES = {
         'NAME': 'webapp',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': 'password',
                              # Set to empty string for default.
     }
 

@@ -65,6 +65,33 @@ def amazon(isbn):
     print "I am in amazon"
     return {'website_name':"amazon.com",'isbn_number':isbn, 'price':a_price,'url':a_link}
 
+def sentiment_analysis(isbn):
+    sent_file = open("AFINN-111.txt","r")
+    scores ={}
+    product=Product.objects.filter(isbn_number=isbn)[0]
+    for line in sent_file:
+        term, score = line.split("\t")
+        scores[term] = int(score)
+    reviews_data=product.p_reviews.all()
+    count = 0
+    sentiment_rating = 0
+    for review in reviews_data:
+            count += 1
+            terms = review.inside_text.split()
+            score = 0
+            for term in terms:
+                if term in scores:
+                    score += scores[term]
+            sentiment_rating += score
+    sentiment_rating = sentiment_rating/count
+    obj=product.available.filter(name="flipkart.com")
+    if obj:
+        obj[0].sentiment_rating=sentiment_rating
+        obj[0].save()
+    else:
+        return False
+    sent_file.close()
+    return True
 
 @app.task
 def main():
@@ -94,4 +121,5 @@ def main():
             product.save()
             for i in f_data['reviews']:
                 Reviews.objects.create(inside_text=i,product=product)
+        status=sentiment_analysis(f_data['isbn_number'])
     return True
