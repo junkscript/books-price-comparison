@@ -82,7 +82,7 @@ DATABASES = {
         'NAME': 'webapp',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'root',
-        'PASSWORD': 'password',
+        'PASSWORD': 'root',
                              # Set to empty string for default.
     }
 
@@ -104,12 +104,24 @@ USE_TZ = True
 
 
 
+import djcelery
+djcelery.setup_loader()
+#from celery.schedules import crontab
 
+from datetime import timedelta
 BROKER_URL = 'redis://localhost:6379/0'
 BROKER_TRANSPORT = 'redis'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-import djcelery
-djcelery.setup_loader()
+
+CELERYCAM_EXPIRE_SUCCESS = timedelta(days=1)
+CELERYCAM_EXPIRE_ERROR = timedelta(days=3)
+CELERYCAM_EXPIRE_PENDING = timedelta(days=5)
+CELERYBEAT_SCHEDULE = {
+    'scraping': {
+        'task': 'worker.tasks.main',
+        'schedule': timedelta(minutes=30)
+    }
+}

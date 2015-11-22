@@ -1,0 +1,3 @@
+python manage.py celery beat --loglevel=INFO
+python manage.py celerycam --frequency=10.0
+python manage.py celeryd -B --concurrency=1
