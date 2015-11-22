@@ -232,7 +232,10 @@ def sentiment_analysis(isbn):
                 if term in scores:
                     score += scores[term]
             sentiment_rating += score
-    sentiment_rating = sentiment_rating/count
+    try:
+        sentiment_rating = sentiment_rating/count
+    except:
+        sentiment_rating=5
     obj=product.available.filter(name="flipkart.com")
     if obj:
         obj[0].sentiment_rating=sentiment_rating
