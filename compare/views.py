@@ -20,11 +20,12 @@ def paginate(posts, page_num=1):
         posts = paginator.page(page)
     except (InvalidPage, EmptyPage):
         posts = paginator.page(paginator.num_pages)
-    return posts
+    return (posts, paginator.num_pages)
 
 def web_search(request):
     data = request.GET
     keyword = data["q"]
+    '''import pdb;pdb.set_trace()'''
     try:
         page_num=data['page_num']
     except:
@@ -33,8 +34,8 @@ def web_search(request):
     tagval = str(tagval).split(" ")
     entry_query = get_query(keyword.strip(), ['name','description','isbn_number','available__name'])
     posts = Product.objects.filter(entry_query|Q(tags__name__in=tagval)).distinct().order_by('id').reverse()
-    posts = paginate(posts, page_num)
-    return render(request, 'search.html',{'data':posts.object_list})
+    posts,total_pages = paginate(posts, page_num)
+    return render(request, 'search.html',{'data':posts.object_list,'total_pages':total_pages, 'current_page':int(page_num), 'next_page':int(page_num)+1, 'previous_page':int(page_num)-1, 'q':keyword})
 
 def product_detail(request):
     data=request.GET['isbn']
